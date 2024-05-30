@@ -1,7 +1,7 @@
-import React from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-
+import React, { useState } from "react";
 const App = () => {
   const getTodos = async () => {
     const response = await axios.get("https://dummyjson.com/todos");
