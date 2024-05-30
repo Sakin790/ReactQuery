@@ -1,35 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const getTodos = async () => {
+    const response = await axios.get("https://dummyjson.com/todos");
+    return response.data.todos;
+  };
+
+  const {
+    isLoading,
+    error,
+    data: todos,
+  } = useQuery({
+    queryKey: ["todos"],
+    queryFn: getTodos,
+    staleTime: 10000,
+  });
+
+  if (isLoading) {
+    return <h1>Loading...</h1>;
+  }
+
+  if (error) {
+    return <h1>{error.message}</h1>;
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      {todos.map((todo) => (
+        <div key={todo.id}>
+          <h2>{todo.todo}</h2>
+          <p>Completed: {todo.completed ? "Yes" : "No"}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
 
-export default App
+export default App;
