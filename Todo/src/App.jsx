@@ -1,15 +1,36 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import React, { useState } from "react";
 
 const App = () => {
   const [text, setText] = useState("");
+  const queryClient = useQueryClient();
 
   const handleInput = (e) => {
     setText(e.target.value);
   };
 
-  
+  const createTodo = async (newTodo) => {
+    const response = await fetch("https://dummyjson.com/todos/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ todo: newTodo }),
+    });
+    return response.json();
+  };
+
+  const todoMutation = useMutation(createTodo, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["todos"]);
+      setText(""); // Clear the input field after a successful addition
+    },
+    onError: () => {
+      console.log("Error");
+    },
+  });
+
   const getTodos = async () => {
     const response = await axios.get("https://dummyjson.com/todos");
     return response.data.todos;
@@ -46,7 +67,10 @@ const App = () => {
               className="shadow appearance-none border rounded w-full py-2 px-3 mr-4 text-grey-darker"
               placeholder="Add Todo"
             />
-            <button className="flex-no-shrink p-2 border-2 rounded text-teal border-teal hover:text-white hover:bg-teal">
+            <button
+              onClick={() => todoMutation.mutate(text)}
+              className="flex-no-shrink p-2 border-2 rounded text-teal border-teal hover:text-white hover:bg-teal"
+            >
               Add
             </button>
           </div>
