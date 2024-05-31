@@ -1,7 +1,7 @@
-
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import React, { useState } from "react";
+
 const App = () => {
   const getTodos = async () => {
     const response = await axios.get("https://dummyjson.com/todos");
@@ -12,11 +12,14 @@ const App = () => {
     isLoading,
     error,
     data: todos,
+    isSuccess,
   } = useQuery({
     queryKey: ["todos"],
     queryFn: getTodos,
     staleTime: 10000,
   });
+
+  console.log(isSuccess);
 
   if (isLoading) {
     return <h1>Loading...</h1>;
