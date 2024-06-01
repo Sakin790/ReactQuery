@@ -11,14 +11,15 @@ const App = () => {
   };
 
   const createTodo = async (newTodo) => {
-    const response = await fetch("https://dummyjson.com/todos/add", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ todo: newTodo }),
-    });
-    return response.json();
+    try {
+      const response = await axios.post("https://dummyjson.com/todos/add", {
+        todo: newTodo,
+      });
+      return response.data; // Assuming the response contains the created todo data
+    } catch (error) {
+      console.error("Error creating todo:", error);
+      throw error; // Re-throw for handling in useMutation
+    }
   };
 
   const todoMutation = useMutation(createTodo, {
@@ -26,14 +27,20 @@ const App = () => {
       queryClient.invalidateQueries(["todos"]);
       setText(""); // Clear the input field after a successful addition
     },
-    onError: () => {
-      console.log("Error");
+    onError: (error) => {
+      console.error("Error adding todo:", error);
+      // You can display an error message to the user here
     },
   });
 
   const getTodos = async () => {
-    const response = await axios.get("https://dummyjson.com/todos");
-    return response.data.todos;
+    try {
+      const response = await axios.get("https://dummyjson.com/todos");
+      return response.data.todos;
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+      throw error; // Re-throw for handling in useQuery
+    }
   };
 
   const {

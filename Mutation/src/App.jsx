@@ -1,14 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { useState } from "react";
-
+import { useMutation, useQuery } from "@tanstack/react-query";
 const App = () => {
-  const [text, setText] = useState("");
-  console.log(text);
-
   const getTodos = async () => {
-    const response = await axios.get("https://dummyjson.com/todos");
-    return response.data.todos;
+    try {
+      const response = await fetch("https://dummyjson.com/todos");
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      return data.todos;
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+      throw error;
+    }
   };
 
   const {
@@ -20,28 +23,10 @@ const App = () => {
     queryFn: getTodos,
     staleTime: 10000,
   });
-  console.log(Todo);
-
-  if (isLoading) {
-    return (
-      <div>
-        <h1>Loading...</h1>
-      </div>
-    );
-  }
-  if (isError) {
-    return <div>{isError.message}</div>;
-  }
 
   return (
     <div>
-      <h2>Reaciving {Todo.length} todos</h2>
-      <input
-        onChange={(e) => setText(e.target.value)}
-        value={text}
-        type="text"
-        placeholder="Enter Todo..."
-      />
+      <h2>Reciving {Todo.length} todos....</h2>
     </div>
   );
 };
