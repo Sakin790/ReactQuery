@@ -1,5 +1,5 @@
 {
-  "name": "localhost",
+  "name": "reactquery",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,10 +11,11 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.40.0",
+    "@tanstack/react-query-devtools": "^5.40.0",
     "axios": "^1.7.2",
-    "json-server": "^1.0.0-beta.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.23.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
