@@ -1,0 +1,21 @@
+{
+  "posts": [
+    { "id": "1", "title": "a title", "views": 100 },
+    { "id": "2", "title": "another title", "views": 200 },
+    { "id": "3", "title": "yet another title", "views": 300 },
+    { "id": "4", "title": "yet another title", "views": 400 },
+    { "id": "5", "title": "yet another title", "views": 500 },
+    { "id": "6", "title": "yet another title", "views": 600 },
+    { "id": "7", "title": "yet another title", "views": 700 },
+    { "id": "8", "title": "yet another title", "views": 800 },
+    { "id": "9", "title": "yet another title", "views": 900 }
+  ],
+  "comments": [
+    { "id": "1", "text": "a comment about post 1", "postId": "1" },
+    { "id": "2", "text": "another comment about post 1", "postId": "1" }
+  ],
+  "profile": {
+    "name": "typicode"
+  }
+ 
+}
