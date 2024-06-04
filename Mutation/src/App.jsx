@@ -1,35 +1,67 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import { fetchPosts } from "./api/api";
+import { createPost } from "./api/api";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const queryClient = useQueryClient();
+  const [post, setPost] = useState("");
+
+  const createPostMutation = useMutation({
+    mutationFn: createPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      console.log("success bro!");
+    },
+  });
+
+  const handleAddPost = (post) => {
+    createPostMutation.mutate({
+      id: Date.now(),
+      title: post,
+    });
+    setPost("");
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (post.trim()) {
+      handleAddPost(post);
+    }
+  };
+
+  const {
+    isLoading,
+    isError,
+    data: posts,
+    error,
+  } = useQuery({
+    queryKey: ["posts"],
+    queryFn: fetchPosts,
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error: {error.message}</div>;
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={post}
+          onChange={(e) => setPost(e.target.value)}
+          placeholder="Enter post title"
+        />
+        <button type="submit">Submit</button>
+      </form>
 
-export default App
+      {posts.map((post) => (
+        <div key={post.id}>
+          <h4 style={{ cursor: "pointer" }}>{post.title}</h4>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default App;
