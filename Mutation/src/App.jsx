@@ -1,19 +1,35 @@
 import { useState } from "react";
-import { fetchPosts } from "./api/api";
-import { createPost } from "./api/api";
-import { deletePost } from "./api/api";
+import { fetchPosts, updatePost, createPost, deletePost } from "./api/api";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 
 const App = () => {
   const queryClient = useQueryClient();
   const [post, setPost] = useState("");
+  const [editingPost, setEditingPost] = useState(null);
+  const [editingTitle, setEditingTitle] = useState("");
 
   const createPostMutation = useMutation({
     mutationFn: createPost,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      console.log("success bro!");
+      console.log("Post created successfully!");
+    },
+  });
+
+  const updatePostMutation = useMutation({
+    mutationFn: updatePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      console.log("Post updated successfully!");
+    },
+  });
+
+  const deletePostMutation = useMutation({
+    mutationFn: deletePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      console.log("Post deleted successfully!");
     },
   });
 
@@ -22,7 +38,6 @@ const App = () => {
       id: uuidv4(),
       title: post,
     });
-
     setPost("");
   };
 
@@ -31,6 +46,24 @@ const App = () => {
     if (post.trim()) {
       handleAddPost(post);
     }
+  };
+
+  const handleUpdate = (post) => {
+    setEditingPost(post);
+    setEditingTitle(post.title);
+  };
+
+  const handleSaveUpdate = () => {
+    updatePostMutation.mutate({
+      ...editingPost,
+      title: editingTitle,
+    });
+    setEditingPost(null);
+    setEditingTitle("");
+  };
+
+  const handleDelete = (id) => {
+    deletePostMutation.mutate(id);
   };
 
   const {
@@ -42,18 +75,6 @@ const App = () => {
     queryKey: ["posts"],
     queryFn: fetchPosts,
   });
-
-  const deletePostMutation = useMutation({
-    mutationFn: deletePost,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
-    },
-  });
-
-  const handleDelete = (id) => {
-    deletePostMutation.mutate(id);
-    console.log("Object deleted!");
-  };
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {error.message}</div>;
@@ -72,14 +93,23 @@ const App = () => {
 
       {posts.map((post) => (
         <div key={post.id}>
-          <h4 style={{ cursor: "pointer" }}>{post.title}</h4>
-          <button
-            onClick={() => {
-              handleDelete(post.id);
-            }}
-          >
-            Delete
-          </button>
+          {editingPost && editingPost.id === post.id ? (
+            <div>
+              <input
+                type="text"
+                value={editingTitle}
+                onChange={(e) => setEditingTitle(e.target.value)}
+              />
+              <button onClick={handleSaveUpdate}>Save</button>
+              <button onClick={() => setEditingPost(null)}>Cancel</button>
+            </div>
+          ) : (
+            <div>
+              <h4 style={{ cursor: "pointer" }}>{post.title}</h4>
+              <button onClick={() => handleDelete(post.id)}>Delete</button>
+              <button onClick={() => handleUpdate(post)}>Edit</button>
+            </div>
+          )}
         </div>
       ))}
     </div>
